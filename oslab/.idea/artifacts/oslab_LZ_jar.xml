@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact name="oslab_LZ:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/oslab_LZ_jar</output-path>
+    <root id="root">
+      <element id="archive" name="oslab_LZ.jar">
+        <element id="module-output" name="oslab_LZ" />
+      </element>
+    </root>
+  </artifact>
+</component>
