@@ -17,7 +17,7 @@ public class MMU
 	private Vector<MCB> mcb;    //物理主存
 	public MMU(OperationSystem os)
 	{
-		this.os                    = os;
+		this.os = os;
 		this.mcb = new Vector<>();
 		// 初始化页表
 		ClearMCB();

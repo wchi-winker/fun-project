@@ -31,7 +31,7 @@ public class OperationSystem {
         this.clock          = new Clock_thread(this);
         this.mmu            = new MMU(this);
         this.cpu            = new CPU2023(this);
-        this.schedue = new ProcessScheduling_thread(this);
+        this.schedue        = new ProcessScheduling_thread(this);
     }
 
 

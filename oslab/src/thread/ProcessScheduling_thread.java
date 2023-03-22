@@ -38,6 +38,10 @@ public class ProcessScheduling_thread extends Thread{
      */
     private Vector<PCB> readyQueue;
     /**
+     * 阻塞队列
+     */
+    private Vector<PCB> blockQueue;
+    /**
      * 作业后备队列
      */
     private Vector<JCB> reserveQueue;
@@ -86,7 +90,7 @@ public class ProcessScheduling_thread extends Thread{
                 // 刷新GUI
                // this.os.getDashboard().refreshCPU();
                 this.os.getDashboard().refreshRunningProcess();
-                // 存在 执行当前指令
+                // 存在，执行当前指令
                 this.os.getCpu().execute();
                 // 判断进程是否运行完毕
                 if (this.os.getCpu().getPC() > this.os.getCpu().getRunningPCB().getInstrucNum()) {
@@ -101,8 +105,8 @@ public class ProcessScheduling_thread extends Thread{
                     this.getManager().getCpu().switchToUserState();
                 } else {
                     // 进程未运行完毕
-                    // 如果时间片用完，则当前进程 运行态 -> 就绪态
-                    if (this.os.getCpu().getTimeSlice() == 0) {
+                    // 该进程正在执行且时间片用完，则运行态 -> 就绪态
+                    if (this.os.getCpu().getRunningPCB().getPSW() == PCB.RUNNING_STATE && this.os.getCpu().getTimeSlice() == 0) {
                         // CPU切换内核态
                         this.getManager().getCpu().switchToKernelState();
                         // 当前PCB 运行态 -> 就绪态
@@ -117,6 +121,25 @@ public class ProcessScheduling_thread extends Thread{
                         this.os.getCpu().CPU_PRO();
                         // CPU切换用户态
                         this.getManager().getCpu().switchToUserState();
+                    }
+                    // 该进程处于阻塞态，则将进程加入阻塞队列
+                    else if(this.os.getCpu().getRunningPCB().getPSW() == PCB.BLOCKING_STATE) {
+                        // CPU切换内核态
+                        this.getManager().getCpu().switchToKernelState();
+                        // 当前PCB,运行态 -> 就绪态
+                        synchronized (this) {
+                            int blockQueueId = this.blockQueue.size();
+                            this.os.getDashboard().process( this.os.getClock().getCurrentTime()+"："+"[阻塞进程："
+                                    + blockQueueId + ","
+                                    +this.os.getCpu().getRunningPCB().getProID() + "]");
+                            this.blockQueue.add(this.os.getCpu().getRunningPCB());
+                        }
+                        // 保护CPU现场
+                        this.os.getCpu().CPU_PRO();
+                        // CPU切换用户态
+                        this.getManager().getCpu().switchToUserState();
+
+                        InputBlock_thread(this, blockQueueId);
                     }
                 }
             }

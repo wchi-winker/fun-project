@@ -40,7 +40,6 @@ public class CPU2023 implements InterruptType {
      * 当前剩余时间片
      */
     private int timeSlice;
-
     public CPU2023(OperationSystem os) {
         this.os                    = os;
         this.PC                         = 1;
@@ -109,16 +108,21 @@ public class CPU2023 implements InterruptType {
         this.getRunningPCB().setPC(this.PC);
         this.getRunningPCB().setIR(this.IR);
         Instruction currentInstrction = this.runningPCB.getInstruc()[IR-1];
-        int r_addr = this.os.getMmu().VirtualAddressToRealAddress(this.runningPCB, currentInstrction.getInstruc_Addr());
 
-        //更新运行时间
+        int r_addr = this.os.getMmu().VirtualAddressToRealAddress(this.runningPCB, currentInstrction.getInstruc_Addr());
+        // 更新运行时间
         this.getRunningPCB().setRunTimes(this.os.getClock().getCurrentTime()-this.getRunningPCB().getInTimes());
-        //输出信息
+        // 输出信息
         this.os.getDashboard().consoleLog(this.os.getClock().getCurrentTime()+"："
                 +"[运行进程：" + this.runningPCB.getProID() + ":" + currentInstrction.getInstruc_ID() + "," + currentInstrction.getInstruc_State()
                 + "," + currentInstrction.getInstruc_Addr() + "," + r_addr + "]");
         // 时间片 -1
         --this.timeSlice;
+
+        // 判断指令类型，若不为1则阻塞该进程
+        if(currentInstrction.getInstruc_State() != 1){
+            this.getRunningPCB().setPSW(PCB.BLOCKING_STATE);
+        }
     }
 
     /**
@@ -180,7 +184,7 @@ public class CPU2023 implements InterruptType {
             return;
         }
         this.PSW = USER_STATE;
-     //   this.os.getDashboard().refreshCPU();
+     // this.os.getDashboard().refreshCPU();
     }
 
     public OperationSystem getManager() {

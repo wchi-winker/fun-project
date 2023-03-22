@@ -11,6 +11,7 @@ public class PCB {
     public static final short READY_STATE = 0;
     public static final short RUNNING_STATE = 1;
     public static final short FINISH_STATE = 2;
+    public static final short BLOCKING_STATE = 3;
     /**
      * 页表
      */
@@ -110,7 +111,7 @@ public class PCB {
      */
     public void cancel() {
         synchronized (this.PST) {
-            //切换至核心态
+            // 切换至核心态
             this.PST.getManager().getCpu().switchToKernelState();
             // 设置收尾信息
             this.PSW = FINISH_STATE;
